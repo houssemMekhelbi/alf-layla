@@ -1,0 +1,40 @@
+/* Alf Layla for GTK4 / libadwaita: named colours only, so apps keep their own
+ * layout while picking up the palette. The accent is copper, not lamp amber:
+ * libadwaita paints the accent on every switch and focus ring, and the lamp is
+ * kept for the one thing that is lit. Destructive and error are rose. */
+
+@define-color accent_color            #E0A06C;
+@define-color accent_bg_color         #C57B57;
+@define-color accent_fg_color         #110E24;
+
+@define-color destructive_color       #E08497;
+@define-color destructive_bg_color    #B5566B;
+@define-color destructive_fg_color    #EFE4D0;
+@define-color success_color           #9CC58A;
+@define-color success_bg_color        #9CC58A;
+@define-color warning_color           #F3B95F;
+@define-color warning_bg_color        #F3B95F;
+@define-color warning_fg_color        #110E24;
+@define-color error_color             #E08497;
+@define-color error_bg_color          #B5566B;
+
+@define-color window_bg_color         #110E24;
+@define-color window_fg_color         #EFE4D0;
+@define-color view_bg_color           #1A1533;
+@define-color view_fg_color           #EFE4D0;
+@define-color headerbar_bg_color      #1A1533;
+@define-color headerbar_fg_color      #EFE4D0;
+@define-color headerbar_border_color  #3A2F5C;
+@define-color headerbar_backdrop_color #110E24;
+@define-color sidebar_bg_color        #110E24;
+@define-color sidebar_fg_color        #EFE4D0;
+@define-color sidebar_border_color    #3A2F5C;
+@define-color secondary_sidebar_bg_color #110E24;
+@define-color card_bg_color           #1A1533;
+@define-color card_fg_color           #EFE4D0;
+@define-color dialog_bg_color         #1A1533;
+@define-color dialog_fg_color         #EFE4D0;
+@define-color popover_bg_color        #1A1533;
+@define-color popover_fg_color        #EFE4D0;
+@define-color thumbnail_bg_color      #231C42;
+@define-color borders                 #3A2F5C;

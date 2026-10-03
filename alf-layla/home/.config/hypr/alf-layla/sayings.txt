@@ -1,0 +1,7 @@
+# Sayings shown on the Alf Layla lock screen, one per line: english | arabic
+# A " / " in the Arabic starts a new line. Blank lines and lines starting with #
+# are skipped; the saying changes every 10 minutes when there are several.
+# These are the book's own framing lines (literary, not religious): the formula
+# that closes every night, and the one that opens a tale.
+and morning overtook Shahrazad, and she fell silent | وأدرك شهرزاد الصباح / فسكتت عن الكلام المباح
+once upon a time, in an age long past | كان يا ما كان / في قديم الزمان

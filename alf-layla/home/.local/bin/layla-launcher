@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Alf Layla launcher: a floating foot window running fzf over desktop entries.
+# Hyprland gives it the outer frame and the lamp light (see hypr/alf-layla.lua);
+# fzf draws the inner frame; foot requests the blur through ext-background-effect.
+# Pressing the bind again while it is open closes it.
+set -euo pipefail
+
+if hyprctl clients -j | grep -q '"class": "layla-launcher"'; then
+    hyprctl eval 'layla_close_launcher()' >/dev/null
+    exit 0
+fi
+
+exec foot \
+    --app-id=layla-launcher \
+    --title=Launcher \
+    -o main.pad=18x14 \
+    -o main.font="Spline Sans Mono:size=10.5" \
+    -o main.line-height=22 \
+    -o colors-dark.alpha=0.94 \
+    -o colors-light.alpha=0.94 \
+    "$HOME/.local/bin/layla-launcher-menu"

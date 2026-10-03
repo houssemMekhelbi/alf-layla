@@ -1,0 +1,45 @@
+# Alf Layla terminal. Night at 90%, compositor blur behind it.
+
+font-family = Spline Sans Mono
+font-family = JetBrainsMono Nerd Font
+font-size = 10.5
+adjust-cell-height = 30%
+window-padding-x = 16
+window-padding-y = 16
+window-decoration = none
+background-opacity = 0.90
+background-blur = true
+
+background = #110E24
+foreground = #E6DBC8
+cursor-color = #F3B95F
+cursor-text = #110E24
+cursor-style = bar
+cursor-style-blink = false
+selection-background = #231C42
+selection-foreground = #EFE4D0
+
+# Search and splits in the theme's colours (ghostty's stock yellow and orange otherwise).
+search-background = #6FC2B6
+search-foreground = #110E24
+search-selected-background = #F3B95F
+search-selected-foreground = #110E24
+split-divider-color = #3A2F5C
+unfocused-split-fill = #110E24
+
+palette = 0=#110E24
+palette = 1=#E08497
+palette = 2=#9CC58A
+palette = 3=#F3B95F
+palette = 4=#8E9BE8
+palette = 5=#C58BD0
+palette = 6=#6FC2B6
+palette = 7=#9E94BA
+palette = 8=#6A618E
+palette = 9=#F0A3B2
+palette = 10=#B5D8A4
+palette = 11=#F8D08B
+palette = 12=#AAB5F2
+palette = 13=#D9A8E2
+palette = 14=#93D6CC
+palette = 15=#EFE4D0

@@ -1,0 +1,129 @@
+/* Alf Layla notifications. Starts from the stock stylesheet: aubergine cards
+ * (1A1533 at 97%) in nested copper frames. The depth of the frame carries
+ * urgency: low is one hairline, normal is two copper frames, critical is three
+ * with a rose outer line. Title in Libre Caslon Text italic, time in Spline
+ * Sans Mono, body muted. Blur comes from the Hyprland layer rule
+ * layla-notify-glass (^swaync). Reload after editing: swaync-client -rs */
+
+@import url("file:///etc/xdg/swaync/style.css");
+
+:root {
+  --cc-bg: rgba(17, 14, 36, 0.96);
+  --noti-border-color: rgba(197, 123, 87, 1);
+  --noti-bg: 26, 21, 51;
+  --noti-bg-alpha: 0.97;
+  --noti-bg-darker: rgb(17, 14, 36);
+  --noti-bg-hover: rgb(35, 28, 66);
+  --noti-bg-focus: rgba(35, 28, 66, 0.8);
+  --noti-close-bg: rgb(35, 28, 66);
+  --noti-close-bg-hover: rgb(58, 47, 92);
+  --text-color: rgb(239, 228, 208);
+  --text-color-disabled: rgb(158, 148, 186);
+  --bg-selected: rgb(197, 123, 87);
+  --border: 1px solid var(--noti-border-color);
+  --border-radius: 4px;
+  --notification-shadow: 0 6px 22px rgba(5, 3, 14, 0.55);
+  --font-size-body: 12px;
+  --font-size-summary: 15px;
+}
+
+* {
+  font-family: "Albert Sans", "IBM Plex Sans Arabic", sans-serif;
+}
+
+/* normal: two frames */
+.notification-row .notification-background .notification {
+  padding: 5px;
+  box-shadow: inset 0 0 0 3px rgb(26, 21, 51), inset 0 0 0 4px rgba(197, 123, 87, 0.55);
+}
+
+/* low: one hairline */
+.notification-row .notification-background .notification.low {
+  border-color: rgb(58, 47, 92);
+  box-shadow: none;
+}
+
+/* critical: three frames, the outer one rose */
+.notification-row .notification-background .notification.critical {
+  padding: 9px;
+  border-color: rgb(224, 132, 151);
+  box-shadow: inset 0 0 0 3px rgb(26, 21, 51), inset 0 0 0 4px rgba(197, 123, 87, 0.75),
+              inset 0 0 0 7px rgb(26, 21, 51), inset 0 0 0 8px rgba(197, 123, 87, 0.35);
+}
+
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .summary {
+  font-family: "Libre Caslon Text", "Scheherazade New", serif;
+  font-style: italic;
+  font-weight: normal;
+  color: rgb(239, 228, 208);
+}
+
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .time {
+  font-family: "Spline Sans Mono", monospace;
+  font-size: 10px;
+  font-weight: normal;
+  color: rgb(158, 148, 186);
+}
+
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .body {
+  color: rgb(158, 148, 186);
+}
+
+.close-button {
+  border-radius: 3px;
+}
+
+.control-center {
+  border: 1px solid rgb(197, 123, 87);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 3px rgb(17, 14, 36), inset 0 0 0 4px rgba(197, 123, 87, 0.45);
+  padding: 6px;
+}
+
+.widget-title > label {
+  font-family: "Libre Caslon Text", serif;
+  font-style: italic;
+  font-size: 1.7rem;
+  color: rgb(239, 228, 208);
+}
+
+.widget-title > button,
+.widget-buttons-grid flowboxchild > button {
+  border-radius: 3px;
+  background: rgb(26, 21, 51);
+  color: rgb(239, 228, 208);
+  border: 1px solid rgb(58, 47, 92);
+}
+
+.widget-title > button:hover,
+.widget-buttons-grid flowboxchild > button:hover {
+  background: rgb(35, 28, 66);
+  border-color: rgb(197, 123, 87);
+}
+
+.widget-buttons-grid flowboxchild > button.toggle:checked {
+  background: rgb(243, 185, 95);
+  color: rgb(17, 14, 36);
+}
+
+.widget-dnd label {
+  font-family: "Albert Sans", sans-serif;
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: rgb(158, 148, 186);
+}
+
+.widget-dnd switch {
+  border-radius: 3px;
+  background: rgb(58, 47, 92);
+}
+
+.widget-dnd switch slider {
+  border-radius: 3px;
+  background: rgb(26, 21, 51);
+}
+
+.widget-dnd switch:checked {
+  background: rgb(243, 185, 95);
+}

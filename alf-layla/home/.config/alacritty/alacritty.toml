@@ -1,0 +1,79 @@
+# Alf Layla terminal. Night at 90%, compositor blur behind it.
+
+[window]
+opacity = 0.90
+padding = { x = 16, y = 16 }
+decorations = "None"
+blur = true
+
+[font]
+normal = { family = "Spline Sans Mono", style = "Regular" }
+size = 10.5
+offset = { x = 0, y = 4 }
+
+[cursor]
+style = { shape = "Beam", blinking = "Off" }
+vi_mode_style = { shape = "Block" }
+thickness = 0.2
+
+[colors.primary]
+background = "#110E24"
+foreground = "#E6DBC8"
+bright_foreground = "#EFE4D0"
+
+[colors.cursor]
+text = "#110E24"
+cursor = "#F3B95F"
+
+[colors.selection]
+text = "#EFE4D0"
+background = "#231C42"
+
+# Search, hints, the footer bar and the vi-mode cursor in the theme's colours (alacritty's stock ones otherwise).
+[colors.search.matches]
+foreground = "#110E24"
+background = "#6FC2B6"
+
+[colors.search.focused_match]
+foreground = "#110E24"
+background = "#F3B95F"
+
+[colors.hints.start]
+foreground = "#110E24"
+background = "#F3B95F"
+
+[colors.hints.end]
+foreground = "#F3B95F"
+background = "#231C42"
+
+[colors.footer_bar]
+foreground = "#EFE4D0"
+background = "#231C42"
+
+[colors.line_indicator]
+foreground = "#110E24"
+background = "#C57B57"
+
+[colors.vi_mode_cursor]
+text = "#110E24"
+cursor = "#6FC2B6"
+
+[colors.normal]
+black   = "#110E24"
+red     = "#E08497"
+green   = "#9CC58A"
+yellow  = "#F3B95F"
+blue    = "#8E9BE8"
+magenta = "#C58BD0"
+cyan    = "#6FC2B6"
+white   = "#9E94BA"
+
+[colors.bright]
+black   = "#6A618E"
+red     = "#F0A3B2"
+green   = "#B5D8A4"
+yellow  = "#F8D08B"
+blue    = "#AAB5F2"
+magenta = "#D9A8E2"
+cyan    = "#93D6CC"
+white   = "#EFE4D0"

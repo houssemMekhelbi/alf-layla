@@ -1,0 +1,4 @@
+name = AlfLaylaQalam
+description = Alf Layla: parchment pointer in a copper line, turning star when busy
+version = 0.1
+cursors_directory = hyprcursors

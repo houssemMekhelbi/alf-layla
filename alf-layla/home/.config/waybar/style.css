@@ -1,0 +1,312 @@
+/* Alf Layla bar. Three framed panels in an aubergine night. Every panel is
+ * two frames deep: an outer copper line and a fainter one 4px inside it. The
+ * horizontal lines are a gradient; the ends are PNG caps in the box's side
+ * padding (alf-layla/cap-start.png, cap-end.png). The clock hangs from the bar
+ * like a lamp: pendant.png breaks the centre frame's bottom lines and drops
+ * 14px below them, with the lamp dot in its point. Workspaces are eight-point
+ * stars, drawn as images so the focused one can glow. All PNGs come from
+ * ~/.config/hypr/alf-layla/build-art.py. Hyprland blurs the layer.
+ * Type: Albert Sans labels, Spline Sans Mono values.
+ * Lamp amber is for the one thing that is lit; rose is for failure. */
+
+@define-color ground    #110E24;
+@define-color raised    #1A1533;
+@define-color sel       #231C42;
+@define-color line      #3A2F5C;
+@define-color dim       #6A618E;
+@define-color muted     #9E94BA;
+@define-color text      #EFE4D0;
+@define-color copper    #C57B57;
+@define-color copperlit #E0A06C;
+@define-color lamp      #F3B95F;
+@define-color turq      #6FC2B6;
+@define-color rose      #E08497;
+@define-color rosedeep  #B5566B;
+
+* {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    text-shadow: none;
+    min-height: 0;
+    font-family: "Albert Sans", "IBM Plex Sans Arabic", "JetBrainsMono Nerd Font", sans-serif;
+    font-size: 12px;
+}
+
+window#waybar {
+    background: transparent;
+    color: @text;
+}
+
+tooltip {
+    background: alpha(@raised, 0.97);
+    border: 1px solid @copper;
+    border-radius: 3px;
+    box-shadow: inset 0 0 0 3px @raised, inset 0 0 0 4px alpha(@copper, 0.45);
+}
+
+tooltip label {
+    padding: 4px;
+    color: @text;
+    font-family: "Spline Sans Mono", "JetBrainsMono Nerd Font", monospace;
+}
+
+/* ---- the frames ------------------------------------------------------- */
+/* Body lines, top to bottom in the 34px frame: copper, 3px of night, faint
+ * copper, the field, faint copper, 3px of night, copper. The box padding is
+ * exactly the cap width so caps and body never overlap. */
+
+.modules-left,
+.modules-center,
+.modules-right {
+    padding: 0 6px 14px 6px;
+    background-image:
+        url("alf-layla/cap-start.png"),
+        url("alf-layla/cap-end.png"),
+        linear-gradient(to bottom,
+            @copper 0px, @copper 1px,
+            alpha(@ground, 0.90) 1px, alpha(@ground, 0.90) 4px,
+            alpha(@copper, 0.55) 4px, alpha(@copper, 0.55) 5px,
+            alpha(@ground, 0.90) 5px, alpha(@ground, 0.90) 29px,
+            alpha(@copper, 0.55) 29px, alpha(@copper, 0.55) 30px,
+            alpha(@ground, 0.90) 30px, alpha(@ground, 0.90) 33px,
+            @copper 33px, @copper 34px,
+            transparent 34px, transparent 48px);
+    background-repeat: no-repeat, no-repeat, no-repeat;
+    background-size: 6px 34px, 6px 34px, 100% 48px;
+    background-position: left top, right top, left top;
+    background-origin: border-box, border-box, content-box;
+    background-clip: border-box, border-box, content-box;
+}
+
+/* Centre: the same frame plus the pendant over its bottom lines. */
+.modules-center {
+    background-image:
+        url("alf-layla/pendant.png"),
+        url("alf-layla/cap-start.png"),
+        url("alf-layla/cap-end.png"),
+        linear-gradient(to bottom,
+            @copper 0px, @copper 1px,
+            alpha(@ground, 0.90) 1px, alpha(@ground, 0.90) 4px,
+            alpha(@copper, 0.55) 4px, alpha(@copper, 0.55) 5px,
+            alpha(@ground, 0.90) 5px, alpha(@ground, 0.90) 29px,
+            alpha(@copper, 0.55) 29px, alpha(@copper, 0.55) 30px,
+            alpha(@ground, 0.90) 30px, alpha(@ground, 0.90) 33px,
+            @copper 33px, @copper 34px,
+            transparent 34px, transparent 48px);
+    background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
+    background-size: 64px 19px, 6px 34px, 6px 34px, 100% 48px;
+    background-position: center 29px, left top, right top, left top;
+    background-origin: border-box, border-box, border-box, content-box;
+    background-clip: border-box, border-box, border-box, content-box;
+}
+
+window#waybar.empty #window {
+    border-left: none;
+}
+
+/* ---- workspaces: eight-point stars --------------------------------- */
+/* hattin-workspaces prints a glyph per slot; here the glyph is hidden and the
+ * state class picks an image: outline empty, copper occupied, dim lamp when
+ * active on another monitor, lit lamp when focused, rose urgent. The foreign
+ * slot stays text (its count varies): ✧ per workspace, faience. */
+
+#custom-ws-1, #custom-ws-2, #custom-ws-3, #custom-ws-4, #custom-ws-5,
+#custom-ws-6, #custom-ws-7, #custom-ws-8, #custom-ws-9, #custom-ws-10 {
+    min-width: 22px;
+    padding: 0;
+    margin: 7px 0;
+    color: transparent;
+    font-size: 12px;
+    background-image: url("alf-layla/ws-occupied.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 20px 20px;
+}
+
+#custom-ws-1 {
+    margin-left: 8px;
+}
+
+#custom-ws-1.empty, #custom-ws-2.empty, #custom-ws-3.empty, #custom-ws-4.empty,
+#custom-ws-5.empty, #custom-ws-6.empty, #custom-ws-7.empty, #custom-ws-8.empty,
+#custom-ws-9.empty, #custom-ws-10.empty {
+    background-image: url("alf-layla/ws-empty.png");
+}
+
+#custom-ws-1.active, #custom-ws-2.active, #custom-ws-3.active, #custom-ws-4.active,
+#custom-ws-5.active, #custom-ws-6.active, #custom-ws-7.active, #custom-ws-8.active,
+#custom-ws-9.active, #custom-ws-10.active {
+    background-image: url("alf-layla/ws-active.png");
+}
+
+#custom-ws-1.focused, #custom-ws-2.focused, #custom-ws-3.focused, #custom-ws-4.focused,
+#custom-ws-5.focused, #custom-ws-6.focused, #custom-ws-7.focused, #custom-ws-8.focused,
+#custom-ws-9.focused, #custom-ws-10.focused {
+    background-image: url("alf-layla/ws-focused.png");
+}
+
+#custom-ws-1.urgent, #custom-ws-2.urgent, #custom-ws-3.urgent, #custom-ws-4.urgent,
+#custom-ws-5.urgent, #custom-ws-6.urgent, #custom-ws-7.urgent, #custom-ws-8.urgent,
+#custom-ws-9.urgent, #custom-ws-10.urgent {
+    background-image: url("alf-layla/ws-urgent.png");
+}
+
+#custom-ws-x {
+    min-width: 0;
+    padding: 0 6px 0 4px;
+    margin: 7px 0;
+    color: @turq;
+    font-family: "Noto Sans Symbols 2", "DejaVu Sans Mono", "JetBrainsMono Nerd Font", monospace;
+    font-size: 13px;
+}
+
+#custom-ws-x.active {
+    color: @lamp;
+}
+
+#custom-ws-1:hover, #custom-ws-2:hover, #custom-ws-3:hover, #custom-ws-4:hover,
+#custom-ws-5:hover, #custom-ws-6:hover, #custom-ws-7:hover, #custom-ws-8:hover,
+#custom-ws-9:hover, #custom-ws-10:hover, #custom-ws-x:hover {
+    background-color: alpha(@lamp, 0.10);
+}
+
+/* ---- next prayer (custom/mawaqit) ------------------------------------ */
+/* City as a muted label, prayer muted, time in parchment (markup from
+ * waybar-mawaqit); classes: soon (<15m, time in lamp amber), iqama, error. */
+
+#custom-mawaqit {
+    padding: 0 6px 0 12px;
+    margin: 10px 0 10px 8px;
+    border-left: 1px solid @line;
+    color: @text;
+    font-family: "Spline Sans Mono", "JetBrainsMono Nerd Font", monospace;
+    font-size: 11px;
+}
+
+#custom-mawaqit.error,
+#custom-mawaqit.unset {
+    color: @muted;
+}
+
+/* ---- window title ------------------------------------------------------ */
+
+#window {
+    padding: 0 10px 0 12px;
+    margin: 10px 0 10px 8px;
+    border-left: 1px solid @line;
+    color: @muted;
+    font-size: 11px;
+}
+
+/* ---- instrument cluster ------------------------------------------------ */
+
+#custom-proton,
+#custom-tailscale,
+#network,
+#wireplumber,
+#bluetooth,
+#cpu,
+#memory,
+#temperature,
+#custom-nvidia,
+#power-profiles-daemon,
+#battery,
+#tray,
+#custom-tray-leader,
+#custom-notifications,
+#custom-idle,
+#custom-yawm {
+    padding: 0 9px;
+    margin: 10px 0;
+    border-right: 1px solid @line;
+    color: @text;
+    font-family: "Spline Sans Mono", "JetBrainsMono Nerd Font", monospace;
+    font-size: 11px;
+}
+
+#custom-yawm {
+    border-right: none;
+    margin-right: 4px;
+}
+
+#clock {
+    padding: 0 14px;
+    margin: 0;
+    color: @text;
+    font-family: "Spline Sans Mono", "JetBrainsMono Nerd Font", monospace;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+#power-profiles-daemon {
+    color: @muted;
+}
+
+#custom-proton.up,
+#custom-tailscale.up {
+    color: @turq;
+}
+
+#custom-proton.down,
+#custom-tailscale.down {
+    color: @rose;
+}
+
+/* due today: lit; overdue: failure, a rose block */
+#custom-yawm.due {
+    color: @lamp;
+}
+
+#custom-yawm.overdue {
+    color: @ground;
+    background: @rose;
+    border-radius: 2px;
+}
+
+#custom-nvidia.active {
+    color: @turq;
+}
+
+#custom-idle.off,
+#battery.warning,
+#temperature.critical {
+    color: @lamp;
+}
+
+#battery.critical {
+    color: @ground;
+    background: @rose;
+    border-radius: 2px;
+}
+
+/* ---- click-to-reveal groups (NET, SYS, ✧) ------------------------------ */
+
+#custom-tray-leader {
+    color: @copper;
+    font-family: "Noto Sans Symbols 2", "DejaVu Sans Mono", monospace;
+    font-size: 13px;
+}
+
+#tray {
+    margin: 7px 0;
+}
+
+/* Revealed members sit on a slightly lighter wash so the group reads as one drawer. */
+.drawer-hidden {
+    background: alpha(@sel, 0.85);
+}
+
+#network:hover,
+#cpu:hover,
+#custom-tray-leader:hover,
+#custom-mawaqit:hover,
+#custom-yawm:hover {
+    background-color: alpha(@lamp, 0.08);
+}
+
+#tray menu {
+    background: @raised;
+    border: 1px solid @copper;
+    color: @text;
+}

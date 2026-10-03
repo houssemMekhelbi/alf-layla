@@ -1,0 +1,258 @@
+#!/usr/bin/env python3
+"""Prayer alert banner (Alf Layla): a framed card, three frames deep, with a lit lattice window on every monitor, above
+fullscreen windows, without taking keyboard focus. Click to dismiss.
+
+    mawaqit-alert '<json>'
+      kind      "adhan" | "iqama"
+      en, ar    prayer name ("Asr", "العصر")
+      time      "17:00"          mosque  "Paris"
+      iqama     "17:10" | null   iqama_ts  epoch of the iqama | null
+      duration  seconds on screen
+Sound: ~/.local/share/mawaqit/sounds/<kind>.wav; MAWAQIT_CHIME=<file> overrides,
+MAWAQIT_CHIME= (empty) silences. Rings again after MAWAQIT_REPEAT seconds (60)
+unless dismissed.
+
+Launched by `waybar-mawaqit watch` (mawaqit-alerts.service). Namespace
+hattin-mawaqit, so hypr/alf-layla.lua's ^hattin- layer rule blurs behind it.
+Everything is drawn here with cairo; there are no image files.
+"""
+
+import json
+import math
+import os
+import subprocess
+import sys
+import time
+
+LIB = "/usr/lib/libgtk4-layer-shell.so"
+if LIB not in os.environ.get("LD_PRELOAD", ""):  # must load before libwayland
+    os.environ["LD_PRELOAD"] = f"{LIB} {os.environ.get('LD_PRELOAD', '')}".strip()
+    os.execv(sys.executable, [sys.executable] + sys.argv)
+
+import gi  # noqa: E402
+gi.require_version("Gtk", "4.0")
+gi.require_version("Gdk", "4.0")
+gi.require_version("Gtk4LayerShell", "1.0")
+gi.require_version("Pango", "1.0")
+gi.require_version("PangoCairo", "1.0")
+from gi.repository import Gdk, GLib, Gtk, Gtk4LayerShell as LS, Pango, PangoCairo  # noqa: E402
+import cairo  # noqa: E402
+
+SOUNDS = os.path.expanduser("~/.local/share/mawaqit/sounds")  # adhan.wav, iqama.wav (make.py)
+FALLBACK = "/usr/share/sounds/freedesktop/stereo/complete.oga"
+REPEAT = int(os.environ.get("MAWAQIT_REPEAT", "60"))  # seconds until the reminder ring
+
+
+def chime(kind):
+    """MAWAQIT_CHIME overrides (empty = silent); else the bell for this kind."""
+    if "MAWAQIT_CHIME" in os.environ:
+        return os.environ["MAWAQIT_CHIME"]
+    path = os.path.join(SOUNDS, f"{kind}.wav")
+    return path if os.path.exists(path) else FALLBACK
+M = 16                                   # room around the card for its shadow
+W, H = 460, 150                          # the card
+ARCH_W, ARCH_H = 58, 78                  # the window on its left
+
+
+def rgb(h):
+    return tuple(int(h[i:i + 2], 16) / 255 for i in (0, 2, 4))
+
+
+GROUND, RAISED = rgb("110E24"), rgb("1A1533")
+COPPER, COPPER_LIT, LAMP = rgb("C57B57"), rgb("E0A06C"), rgb("F3B95F")
+
+CSS = b"""
+window { background: transparent; }
+.card { padding: 30px 34px 14px 120px; }
+.name { font-family: "Libre Caslon Text", serif; font-style: italic; font-size: 32px;
+        font-weight: 400; color: #EFE4D0; }
+.ar   { font-family: "Scheherazade New", "Amiri", serif; font-size: 28px; color: #E0A06C; }
+.tag  { font-family: "Albert Sans", sans-serif; font-weight: 600; font-size: 10px;
+        letter-spacing: 2px; color: #F3B95F; }
+.sub  { font-family: "Spline Sans Mono", monospace; font-size: 12px; color: #9E94BA; }
+.hint { font-family: "Albert Sans", sans-serif; font-weight: 600; font-size: 9px;
+        letter-spacing: 2px; color: #6A618E; }
+"""
+
+
+def rounded(cr, x, y, w, h, r):
+    cr.new_sub_path()
+    cr.arc(x + w - r, y + r, r, -math.pi / 2, 0)
+    cr.arc(x + w - r, y + h - r, r, 0, math.pi / 2)
+    cr.arc(x + r, y + h - r, r, math.pi / 2, math.pi)
+    cr.arc(x + r, y + r, r, math.pi, 3 * math.pi / 2)
+    cr.close_path()
+
+
+def star(cr, cx, cy, R, ratio=0.62):
+    for k in range(16):
+        a = math.radians(k * 22.5 - 90)
+        rad = R if k % 2 == 0 else R * ratio
+        (cr.move_to if k == 0 else cr.line_to)(cx + rad * math.cos(a), cy + rad * math.sin(a))
+    cr.close_path()
+
+
+def arch(cr, x, y, w, h):
+    cx, spring = x + w / 2, y + h * 0.42
+    cr.move_to(x, y + h)
+    cr.line_to(x, spring)
+    cr.curve_to(x, spring - h * 0.20, cx - w * 0.16, y + h * 0.12, cx, y)
+    cr.curve_to(cx + w * 0.16, y + h * 0.12, x + w, spring - h * 0.20, x + w, spring)
+    cr.line_to(x + w, y + h)
+    cr.close_path()
+
+
+def draw(iqama):
+    """The card in its three nested frames; on the left a lattice window: lit for
+    the adhan (lamp behind the star), dark with only the lamp's star for the iqama."""
+    def fn(_area, cr, w, h):
+        for i in range(8, 0, -1):  # a soft shadow; stays under the blur rule's ignore_alpha
+            rounded(cr, M - i, M + 4 - i, W + 2 * i, H + 2 * i, 4 + i)
+            cr.set_source_rgba(5 / 255, 3 / 255, 14 / 255, 0.012)
+            cr.fill()
+        rounded(cr, M, M, W, H, 4)
+        cr.set_source_rgba(*RAISED, 0.97)
+        cr.fill()
+        cr.set_line_width(1)
+        for inset, alpha, radius in ((0.5, 1.0, 4), (4.5, 0.55, 2), (8.5, 0.30, 1)):
+            rounded(cr, M + inset, M + inset, W - 2 * inset, H - 2 * inset, radius)
+            cr.set_source_rgba(*COPPER, alpha)
+            cr.stroke()
+
+        ax, ay = M + 34, M + (H - ARCH_H) / 2
+        cx, cy = ax + ARCH_W / 2, ay + ARCH_H * 0.58
+        if iqama:
+            arch(cr, ax, ay, ARCH_W, ARCH_H)
+            cr.set_source_rgb(*GROUND)
+            cr.fill_preserve()
+            cr.set_source_rgb(*COPPER_LIT)
+            cr.set_line_width(1.5)
+            cr.stroke()
+            star(cr, cx, cy, 14)
+            cr.set_source_rgb(*LAMP)
+            cr.fill()
+        else:
+            for i in range(9, 0, -1):  # the light the window throws
+                arch(cr, ax, ay, ARCH_W, ARCH_H)
+                cr.set_source_rgba(*LAMP, 0.035)
+                cr.set_line_width(2 * i)
+                cr.stroke()
+            arch(cr, ax, ay, ARCH_W, ARCH_H)
+            cr.set_source_rgb(*LAMP)
+            cr.fill_preserve()
+            cr.set_source_rgb(*COPPER_LIT)
+            cr.set_line_width(1.5)
+            cr.stroke()
+            star(cr, cx, cy, 17)
+            cr.set_source_rgb(*GROUND)
+            cr.fill()
+            star(cr, cx, cy, 8)
+            cr.set_source_rgb(*LAMP)
+            cr.fill()
+    return fn
+
+
+def until(ts):
+    s = max(0, int(ts - time.time()))
+    m, s = divmod(s, 60)
+    return f"in {m}m {s:02d}s" if m else f"in {s}s"
+
+
+def build(app, a, monitor):
+    win = Gtk.ApplicationWindow(application=app)
+    LS.init_for_window(win)
+    LS.set_namespace(win, "hattin-mawaqit")
+    LS.set_layer(win, LS.Layer.OVERLAY)
+    LS.set_anchor(win, LS.Edge.TOP, True)
+    LS.set_margin(win, LS.Edge.TOP, 14 - M // 2)
+    LS.set_keyboard_mode(win, LS.KeyboardMode.NONE)
+    LS.set_monitor(win, monitor)
+    win.set_default_size(W + 2 * M, H + 2 * M)
+
+    iqama = a["kind"] == "iqama"
+    area = Gtk.DrawingArea()
+    area.set_content_width(W + 2 * M)
+    area.set_content_height(H + 2 * M)
+    area.set_draw_func(draw(iqama))
+
+    name = Gtk.Label(label=a["en"], xalign=0)
+    name.add_css_class("name")
+    ar = Gtk.Label(label=a["ar"], xalign=0, hexpand=True)
+    ar.add_css_class("ar")
+    tag = Gtk.Label(label="IQAMA" if iqama else "ADHAN", xalign=1, valign=Gtk.Align.START)
+    tag.add_css_class("tag")
+    title = Gtk.Box(spacing=12)
+    title.append(name)
+    title.append(ar)
+    title.append(tag)
+
+    sub = Gtk.Label(xalign=0)
+    sub.add_css_class("sub")
+
+    minutes = max(1, round(int(a.get("duration", 240)) / 60))
+    hint = Gtk.Label(label=f"{minutes} MIN" if iqama else "DISMISS", xalign=1)
+    hint.add_css_class("hint")
+
+    def tick():
+        head = f"{a['mosque']} · {a['time']}"
+        if iqama:
+            sub.set_label(f"{a['mosque']} · {a.get('iqama') or a['time']} · the prayer is starting")
+        elif a.get("iqama_ts") and a["iqama_ts"] > time.time():
+            sub.set_label(f"{head} · iqama {a['iqama']} · {until(a['iqama_ts'])}")
+        elif a.get("iqama"):
+            sub.set_label(f"{head} · iqama {a['iqama']} · now")
+        else:
+            sub.set_label(f"{head} · time for prayer")
+        return True
+    tick()
+    GLib.timeout_add_seconds(1, tick)
+
+    card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=2, valign=Gtk.Align.START)
+    card.add_css_class("card")
+    card.set_margin_top(M)
+    card.set_margin_start(M)
+    card.set_margin_end(M)
+    for w in (title, sub, hint):
+        card.append(w)
+
+    over = Gtk.Overlay()
+    over.set_child(area)
+    over.add_overlay(card)
+    win.set_child(over)
+
+    click = Gtk.GestureClick()
+    click.connect("pressed", lambda *_: app.quit())
+    win.add_controller(click)
+    win.present()
+
+
+def main():
+    a = json.loads(sys.argv[1])
+    app = Gtk.Application(application_id=None)
+
+    def activate(app):
+        prov = Gtk.CssProvider()
+        prov.load_from_data(CSS)
+        disp = Gdk.Display.get_default()
+        Gtk.StyleContext.add_provider_for_display(disp, prov, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        mons = disp.get_monitors()
+        for i in range(mons.get_n_items()):
+            build(app, a, mons.get_item(i))
+        app.hold()
+        GLib.timeout_add_seconds(max(30, int(a.get("duration", 300))), app.quit)
+        sound = chime(a["kind"])
+        if sound and os.path.exists(sound):
+            def ring():
+                subprocess.Popen(["pw-play", "--media-role", "Notification", sound],
+                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                return False
+            ring()
+            # one reminder if the banner is still up; dismissing quits first
+            GLib.timeout_add_seconds(REPEAT, ring)
+
+    app.connect("activate", activate)
+    app.run([])
+
+
+if __name__ == "__main__":
+    main()
