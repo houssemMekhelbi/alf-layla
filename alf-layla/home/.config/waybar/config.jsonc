@@ -302,6 +302,7 @@
     "on-click-right": "~/.local/bin/layla-yawm add"
   },
   "clock": {
+    "locale": "en_GB.UTF-8",
     "format": "<span color='#9E94BA'>{0:%a %d %b}</span>   <span font_family='Libre Caslon Text' style='italic' color='#E0A06C'>night {0:%j}</span>   {0:%H:%M}",
     "tooltip-format": "<tt>{calendar}</tt>",
     "calendar": {

@@ -10,7 +10,7 @@
 
 setopt prompt_subst
 
-LAYLA_DEFAULT_USER=${LAYLA_DEFAULT_USER:-rahal}   # hide context on your own box
+LAYLA_DEFAULT_USER=${LAYLA_DEFAULT_USER:-$USER}   # hide context on your own box
 
 S_TEXT='#EFE4D0'  S_STRUCT='#E0A06C' S_MUTED='#9E94BA'
 S_TAN='#6A618E'   S_SHU='#E08497'    S_AI='#6FC2B6'
