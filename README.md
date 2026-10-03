@@ -56,8 +56,8 @@ sudo pacman -S --needed $(grep -v '^#' alf-layla/packages.txt)
 > Everything it replaces is backed up first.
 
 ```sh
-git clone https://github.com/houssemMekhelbi/hattin-alf-layla.git
-cd hattin-alf-layla
+git clone https://github.com/houssemMekhelbi/alf-layla.git
+cd alf-layla
 ./alf-layla/restore.sh --dry-run   # show what would change, touch nothing
 ./alf-layla/restore.sh             # apply
 ```
